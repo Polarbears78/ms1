@@ -41,7 +41,11 @@ ok(!qa('.unit-card').some(c => /빛과 파동/.test(c.textContent)), '빛과 파
 console.log('2) 평가 목록 → 평가 시작');
 click(forceCard);
 ok(/힘의 작용/.test(q('.screen-title').textContent), '평가 목록 타이틀');
-const assessCard = q('.assess-card');
+const assessCards = qa('.assess-card');
+ok(assessCards.length === 2, '평가 2개(1회/2회), got ' + assessCards.length);
+ok(/총괄 평가 1회/.test(assessCards[0].textContent), '1회 노출');
+ok(/총괄 평가 2회/.test(assessCards[1].textContent), '2회 노출');
+const assessCard = assessCards[0];
 ok(/20문항/.test(assessCard.textContent), '20문항 표기');
 click(assessCard);
 ok(/1 \/ 20/.test(q('.qcount').textContent), '진행 1/20');
@@ -121,6 +125,38 @@ const cs1after = qa('.choice'); // 채점 후 재렌더된 보기
 ok(q('.fb-tag').classList.contains('no'), '오답 시 오답 처리');
 ok(cs1after[0].classList.contains('wrong'), '선택한 오답 강조');
 ok(cs1after[1].classList.contains('correct'), '정답 위치 강조');
+
+// 회2 전체 풀이 (정답률 검증)
+console.log('8) 총괄 평가 2회 전체 풀이');
+window.__app.startAssessment('force-final-2');
+ok(/1 \/ 20/.test(q('.qcount').textContent), '회2 진행 1/20');
+const ANS2 = window.QUESTIONS['force-final-2-q'];
+for (let i = 0; i < ANS2.length; i++) {
+  const qq = ANS2[i];
+  if (qq.type === 'mc' || qq.type === 'multi') {
+    const cs = qa('.choice');
+    const targets = Array.isArray(qq.answer) ? qq.answer : [qq.answer];
+    targets.forEach(t => { const b = cs.find(c => c.dataset.label === t); click(b); });
+    click(q('#confirm-btn'));
+    ok(q('.fb-tag').classList.contains('ok'), '회2 문항 ' + qq.id + ' 정답 채점');
+  } else if (qq.type === 'short') {
+    setInput(q('#short-input'), qq.answer);
+    click(q('#confirm-btn'));
+    ok(q('.fb-tag').classList.contains('ok'), '회2 단답 ' + qq.id + ' 정답 채점');
+  } else if (qq.type === 'essay') {
+    click(q('#confirm-btn'));
+    ok(/모범답안/.test(q('#feedback').textContent), '회2 서술 ' + qq.id + ' 모범답안');
+    click(q('.self-btn.o'));
+  }
+  click(q('.footer .btn-primary'));
+}
+ok(/결과/.test(q('.screen-title').textContent), '회2 결과 화면');
+ok(/16/.test(q('.score-num').textContent), '회2 자동 채점 16, got ' + q('.score-num').textContent);
+ok(qa('.result-row').length === 20, '회2 결과 행 20개');
+// 회2 11번 보기 그림 5개 렌더 확인
+click(qa('.result-row')[10]);
+ok(/11 \/ 20/.test(q('.qcount').textContent), '회2 11번 이동');
+ok(qa('.choice.img-choice img').length === 5, '회2 11번 보기 그림 5개');
 
 console.log('\n결과: ' + pass + ' passed, ' + fail + ' failed');
 process.exit(fail ? 1 : 0);
