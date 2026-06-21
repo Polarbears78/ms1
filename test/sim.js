@@ -30,14 +30,13 @@ function setInput(elm, val) {
 function q(sel) { return document.querySelector(sel); }
 function qa(sel) { return Array.from(document.querySelectorAll(sel)); }
 
-console.log('1) 단원 선택 화면');
+console.log('1) 단원 선택 화면 (1학년 전용)');
 ok(/단원 선택/.test(q('.screen-title').textContent), '단원 선택 타이틀');
 const unitCards = qa('.unit-card');
-ok(unitCards.length === 2, '단원 카드 2개 (빛과 파동/힘의 작용), got ' + unitCards.length);
+ok(unitCards.length === 1, '단원 카드 1개 (힘의 작용만), got ' + unitCards.length);
 const forceCard = unitCards.find(c => /힘의 작용/.test(c.textContent));
 ok(!!forceCard && !forceCard.disabled, '힘의 작용 카드 활성');
-const lightCard = unitCards.find(c => /빛과 파동/.test(c.textContent));
-ok(!!lightCard && lightCard.disabled, '빛과 파동 카드 비활성(준비 중)');
+ok(!qa('.unit-card').some(c => /빛과 파동/.test(c.textContent)), '빛과 파동 단원 제거됨');
 
 console.log('2) 평가 목록 → 평가 시작');
 click(forceCard);

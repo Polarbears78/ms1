@@ -10,15 +10,6 @@
 
 const UNITS = [
   {
-    id: 'light',
-    roman: 'Ⅲ',
-    title: '빛과 파동',
-    pages: '',
-    grade: 2,
-    available: false,           // 총괄평가 콘텐츠는 추후 추가
-    assessments: ['light-final-1'],
-  },
-  {
     id: 'force',
     roman: 'Ⅴ',
     title: '힘의 작용',
@@ -30,13 +21,6 @@ const UNITS = [
 ];
 
 const ASSESSMENTS = {
-  'light-final-1': {
-    id: 'light-final-1',
-    unitId: 'light',
-    title: '총괄 평가 1회',
-    subtitle: 'Ⅲ. 빛과 파동',
-    questions: 'light-final-1-q',
-  },
   'force-final-1': {
     id: 'force-final-1',
     unitId: 'force',
@@ -47,9 +31,6 @@ const ASSESSMENTS = {
 };
 
 const QUESTIONS = {
-  // 기존 Ⅲ. 빛과 파동 콘텐츠 자리(별도 키). 추후 문항 추가.
-  'light-final-1-q': [],
-
   // ===== Ⅴ. 힘의 작용 · 총괄 평가 1회 (20문항) =====
   'force-final-1-q': [
     {
