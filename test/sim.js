@@ -33,9 +33,11 @@ function qa(sel) { return Array.from(document.querySelectorAll(sel)); }
 console.log('1) 단원 선택 화면 (1학년 전용)');
 ok(/단원 선택/.test(q('.screen-title').textContent), '단원 선택 타이틀');
 const unitCards = qa('.unit-card');
-ok(unitCards.length === 1, '단원 카드 1개 (힘의 작용만), got ' + unitCards.length);
+ok(unitCards.length === 2, '단원 카드 2개 (힘의 작용·기체의 성질), got ' + unitCards.length);
 const forceCard = unitCards.find(c => /힘의 작용/.test(c.textContent));
 ok(!!forceCard && !forceCard.disabled, '힘의 작용 카드 활성');
+const gasCard0 = unitCards.find(c => /기체의 성질/.test(c.textContent));
+ok(!!gasCard0 && !gasCard0.disabled, '기체의 성질 카드 활성');
 ok(!qa('.unit-card').some(c => /빛과 파동/.test(c.textContent)), '빛과 파동 단원 제거됨');
 
 console.log('2) 평가 목록 → 평가 시작');
@@ -157,6 +159,67 @@ ok(qa('.result-row').length === 20, '회2 결과 행 20개');
 click(qa('.result-row')[10]);
 ok(/11 \/ 20/.test(q('.qcount').textContent), '회2 11번 이동');
 ok(qa('.choice.img-choice img').length === 5, '회2 11번 보기 그림 5개');
+
+// ===== Ⅵ. 기체의 성질 단원 =====
+console.log('\n9) Ⅵ. 기체의 성질 단원 노출 + 평가 목록');
+window.__app.renderUnits();
+const gasCard = qa('.unit-card').find(c => /기체의 성질/.test(c.textContent));
+ok(!!gasCard && !gasCard.disabled, '기체의 성질 카드 활성');
+click(gasCard);
+ok(/기체의 성질/.test(q('.screen-title').textContent), '기체 평가 목록 타이틀');
+const gasAssess = qa('.assess-card');
+ok(gasAssess.length === 2, '기체 평가 2개(1회/2회), got ' + gasAssess.length);
+ok(/총괄 평가 1회/.test(gasAssess[0].textContent), '기체 1회 노출');
+ok(/총괄 평가 2회/.test(gasAssess[1].textContent), '기체 2회 노출');
+ok(/20문항/.test(gasAssess[0].textContent), '기체 1회 20문항 표기');
+
+function solveAll(qKey, tag) {
+  const ANS = window.QUESTIONS[qKey];
+  for (let i = 0; i < ANS.length; i++) {
+    const qq = ANS[i];
+    if (qq.type === 'mc' || qq.type === 'multi') {
+      const cs = qa('.choice');
+      const targets = Array.isArray(qq.answer) ? qq.answer : [qq.answer];
+      targets.forEach(t => { const b = cs.find(c => c.dataset.label === t); click(b); });
+      click(q('#confirm-btn'));
+      ok(q('.fb-tag').classList.contains('ok'), tag + ' 문항 ' + qq.id + ' 정답 채점');
+    } else if (qq.type === 'short') {
+      setInput(q('#short-input'), qq.answer);
+      click(q('#confirm-btn'));
+      ok(q('.fb-tag').classList.contains('ok'), tag + ' 단답 ' + qq.id + ' 정답 채점');
+    } else if (qq.type === 'essay') {
+      click(q('#confirm-btn'));
+      ok(/모범답안/.test(q('#feedback').textContent), tag + ' 서술 ' + qq.id + ' 모범답안');
+      click(q('.self-btn.o'));
+    }
+    click(q('.footer .btn-primary'));
+  }
+}
+
+console.log('10) 기체 1회 전체 풀이 (정답률·복수정답 채점)');
+window.__app.startAssessment('gas-final-1');
+ok(/1 \/ 20/.test(q('.qcount').textContent), '기체1 진행 1/20');
+solveAll('gas-final-1-q', '기체1');
+ok(/결과/.test(q('.screen-title').textContent), '기체1 결과 화면');
+ok(/16/.test(q('.score-num').textContent), '기체1 자동 채점 16, got ' + q('.score-num').textContent);
+ok(/\/ 16/.test(q('.score-den').textContent), '기체1 자동 채점 분모 16');
+ok(/4 \/ 4/.test(q('.score-sub').textContent), '기체1 서술형 자기평가 4/4');
+ok(qa('.result-row').length === 20, '기체1 결과 행 20개');
+// 보기 그림(그래프 5개) 렌더 검증: 8번·9번
+window.__app.renderQuestion(7); // 8번
+ok(/8 \/ 20/.test(q('.qcount').textContent), '기체1 8번 이동');
+ok(!!q('.q-figure img'), '기체1 8번 문제 그림 렌더');
+ok(qa('.choice.img-choice img').length === 5, '기체1 8번 보기 그림 5개');
+window.__app.renderQuestion(8); // 9번
+ok(qa('.choice.img-choice img').length === 5, '기체1 9번 보기 그림 5개');
+
+console.log('11) 기체 2회 전체 풀이 (정답률·복수정답 3개 채점)');
+window.__app.startAssessment('gas-final-2');
+ok(/1 \/ 20/.test(q('.qcount').textContent), '기체2 진행 1/20');
+solveAll('gas-final-2-q', '기체2');
+ok(/결과/.test(q('.screen-title').textContent), '기체2 결과 화면');
+ok(/16/.test(q('.score-num').textContent), '기체2 자동 채점 16, got ' + q('.score-num').textContent);
+ok(qa('.result-row').length === 20, '기체2 결과 행 20개');
 
 console.log('\n결과: ' + pass + ' passed, ' + fail + ' failed');
 process.exit(fail ? 1 : 0);
