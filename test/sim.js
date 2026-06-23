@@ -169,9 +169,10 @@ ok(!!gasCard && !gasCard.disabled, '기체의 성질 카드 활성');
 click(gasCard);
 ok(/기체의 성질/.test(q('.screen-title').textContent), '기체 평가 목록 타이틀');
 const gasAssess = qa('.assess-card');
-ok(gasAssess.length === 2, '기체 평가 2개(1회/2회), got ' + gasAssess.length);
+ok(gasAssess.length === 3, '기체 평가 3개(1회/2회/대단원 정리), got ' + gasAssess.length);
 ok(/총괄 평가 1회/.test(gasAssess[0].textContent), '기체 1회 노출');
 ok(/총괄 평가 2회/.test(gasAssess[1].textContent), '기체 2회 노출');
+ok(/대단원 정리/.test(gasAssess[2].textContent), '기체 대단원 정리 노출');
 ok(/20문항/.test(gasAssess[0].textContent), '기체 1회 20문항 표기');
 
 function solveAll(qKey, tag) {
@@ -233,6 +234,17 @@ ok(/결과/.test(q('.screen-title').textContent), '대단원 정리 결과 화�
 ok(/24/.test(q('.score-num').textContent), '대단원 정리 자동 채점 24, got ' + q('.score-num').textContent);
 ok(/\/ 24/.test(q('.score-den').textContent), '대단원 정리 분모 24');
 ok(qa('.result-row').length === 24, '대단원 정리 결과 행 24개');
+
+console.log('13) Ⅵ. 기체의 성질 · 대단원 정리(단답형 28문항) 전체 풀이');
+window.__app.startAssessment('gas-summary');
+ok(/1 \/ 28/.test(q('.qcount').textContent), '기체 대단원 정리 진행 1/28');
+const GSUM = window.QUESTIONS['gas-summary-q'];
+ok(GSUM.length === 28, '기체 대단원 정리 28문항');
+ok(GSUM.every(function (x) { return x.type === 'short'; }), '기체 대단원 정리 전부 단답형');
+solveAll('gas-summary-q', '기체정리');
+ok(/결과/.test(q('.screen-title').textContent), '기체 대단원 정리 결과 화면');
+ok(/28/.test(q('.score-num').textContent), '기체 대단원 정리 자동 채점 28, got ' + q('.score-num').textContent);
+ok(qa('.result-row').length === 28, '기체 대단원 정리 결과 행 28개');
 
 console.log('\n결과: ' + pass + ' passed, ' + fail + ' failed');
 process.exit(fail ? 1 : 0);
