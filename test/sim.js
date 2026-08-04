@@ -33,7 +33,7 @@ function qa(sel) { return Array.from(document.querySelectorAll(sel)); }
 console.log('1) 단원 선택 화면 (1학년 전용)');
 ok(/단원 선택/.test(q('.screen-title').textContent), '단원 선택 타이틀');
 const unitCards = qa('.unit-card');
-ok(unitCards.length === 2, '단원 카드 2개 (힘의 작용·기체의 성질), got ' + unitCards.length);
+ok(unitCards.length === 3, '단원 카드 3개 (힘의 작용·기체의 성질·태양계), got ' + unitCards.length);
 const forceCard = unitCards.find(c => /힘의 작용/.test(c.textContent));
 ok(!!forceCard && !forceCard.disabled, '힘의 작용 카드 활성');
 const gasCard0 = unitCards.find(c => /기체의 성질/.test(c.textContent));

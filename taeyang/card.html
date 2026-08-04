@@ -1,0 +1,146 @@
+<!DOCTYPE html>
+<html lang="ko">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<meta name="robots" content="noindex">
+<title>행성 카드 탐구 · 태양계</title>
+<link rel="stylesheet" href="assets/style.css">
+<style>
+.planet{border:1px solid var(--line);border-radius:10px;padding:12px;margin:10px 0;background:#fff}
+.planet h3{margin:0 0 8px;color:var(--main);font-size:1rem}
+.pgrid{display:grid;grid-template-columns:1fr 1fr;gap:8px}
+.pgrid label{font-weight:500;font-size:.85rem}
+.group-btns{display:flex;gap:6px;margin-top:6px}
+.gbtn{flex:1;padding:8px;border:1px solid var(--line);border-radius:8px;background:#fff;color:#222;font-weight:600;cursor:pointer}
+.gbtn.on-a{background:#eaf1fb;border-color:var(--main);color:var(--main)}
+.gbtn.on-b{background:#fdf0e7;border-color:#c96a1b;color:#c96a1b}
+</style>
+</head>
+<body>
+<header><div class="wrap">
+  <h1>탐구 · 행성 카드 만들기</h1>
+  <p>Ⅶ. 태양계 1차시 · 교과서 228~229쪽 · <a href="index.html" style="color:#cfe3ff">목록으로</a></p>
+</div></header>
+<div class="wrap">
+  <div class="card">
+    <h2>학생 정보</h2>
+    <div class="row">
+      <div><label for="sid">학번 (예: 10103)</label><input type="text" id="sid" inputmode="numeric"></div>
+      <div><label for="sname">이름</label><input type="text" id="sname"></div>
+    </div>
+  </div>
+  <div class="card">
+    <h2>① 행성 카드 채우기</h2>
+    <p class="note">스마트 기기로 조사하여 각 행성의 카드를 완성하세요. 반지름과 질량은 지구를 1로 한 상대값입니다.</p>
+    <div id="planets"></div>
+  </div>
+  <div class="card">
+    <h2>② 행성 분류하기</h2>
+    <p class="note">완성한 카드를 보고, 특징이 비슷한 행성끼리 <b>A집단 / B집단</b>으로 나누어 보세요. 어떤 기준으로 나누었는지도 쓰세요.</p>
+    <div id="grouping"></div>
+    <label for="criterion" style="margin-top:10px">내가 세운 분류 기준</label>
+    <input type="text" id="criterion" placeholder="예: 반지름이 큰 행성과 작은 행성">
+    <div style="height:8px"></div>
+    <button type="button" id="checkBtn" style="background:#eaf1fb;color:var(--main)">분류 결과 확인해 보기</button>
+    <div id="checkBox" class="result"></div>
+  </div>
+  <button id="submitBtn">탐구 결과 제출하기</button>
+  <div id="resultBox" class="result"></div>
+  <p class="note" style="margin-bottom:40px">행성 카드는 여러 번 제출할 수 있습니다. (마지막 제출이 최종본)</p>
+</div>
+<script src="assets/config.js"></script>
+<script>
+const PLANETS = ["수성","금성","지구","화성","목성","토성","천왕성","해왕성"];
+const TERRESTRIAL = ["수성","금성","지구","화성"];
+const box = document.getElementById("planets");
+PLANETS.forEach((p, i) => {
+  const d = document.createElement("div");
+  d.className = "planet";
+  d.innerHTML = `<h3>${p}</h3>
+  <div class="pgrid">
+    <div><label>상대 반지름 (지구=1)</label><input type="text" id="r${i}" inputmode="decimal" placeholder="예: 0.4"></div>
+    <div><label>상대 질량 (지구=1)</label><input type="text" id="m${i}" inputmode="decimal" placeholder="예: 0.06"></div>
+    <div><label>표면</label><select id="s${i}"><option value="">선택</option><option>단단한 암석</option><option>기체 (단단한 표면 없음)</option></select></div>
+    <div><label>고리</label><select id="g${i}"><option value="">선택</option><option>없다</option><option>있다</option></select></div>
+  </div>
+  <label style="margin-top:8px">특징 한 줄</label>
+  <input type="text" id="f${i}" placeholder="예: 대기가 없어 낮과 밤의 온도 차가 크다">`;
+  box.appendChild(d);
+});
+
+const grouping = document.getElementById("grouping");
+const groups = {};
+PLANETS.forEach((p) => {
+  groups[p] = null;
+  const row = document.createElement("div");
+  row.className = "group-btns";
+  row.innerHTML = `<span style="flex:0 0 70px;font-weight:600;align-self:center">${p}</span>
+  <button type="button" class="gbtn" data-p="${p}" data-g="A">A집단</button>
+  <button type="button" class="gbtn" data-p="${p}" data-g="B">B집단</button>`;
+  grouping.appendChild(row);
+});
+grouping.addEventListener("click", (e) => {
+  const b = e.target.closest(".gbtn"); if (!b) return;
+  const p = b.dataset.p, g = b.dataset.g;
+  groups[p] = g;
+  const btns = grouping.querySelectorAll(`.gbtn[data-p="${p}"]`);
+  btns.forEach(x => x.className = "gbtn");
+  b.className = "gbtn " + (g === "A" ? "on-a" : "on-b");
+});
+
+function checkGrouping() {
+  if (Object.values(groups).some(g => !g)) return { done: false };
+  const a = PLANETS.filter(p => groups[p] === "A");
+  const b = PLANETS.filter(p => groups[p] === "B");
+  const setEq = (x, y) => x.length === y.length && x.every(v => y.includes(v));
+  const jovian = PLANETS.filter(p => !TERRESTRIAL.includes(p));
+  const match = (setEq(a, TERRESTRIAL) && setEq(b, jovian)) || (setEq(b, TERRESTRIAL) && setEq(a, jovian));
+  return { done: true, match, a, b };
+}
+
+document.getElementById("checkBtn").addEventListener("click", () => {
+  const cb = document.getElementById("checkBox");
+  const r = checkGrouping();
+  if (!r.done) { cb.className = "result err"; cb.textContent = "아직 집단을 정하지 않은 행성이 있습니다."; return; }
+  if (r.match) {
+    cb.className = "result ok";
+    cb.innerHTML = "<b>훌륭해요!</b> 과학자들도 이렇게 나눕니다. 반지름·질량이 작고 암석 표면이 있는 집단을 <b>지구형 행성</b>, 크고 기체로 이루어진 집단을 <b>목성형 행성</b>이라고 해요.";
+  } else {
+    cb.className = "result err";
+    cb.innerHTML = "다르게 나누었네요. 그것도 하나의 기준이 될 수 있어요! 다만 <b>반지름(또는 질량)</b>을 기준으로 다시 나누어 보면 어떤 두 집단이 되는지 확인해 보세요.";
+  }
+});
+
+document.getElementById("submitBtn").addEventListener("click", async () => {
+  const sid = document.getElementById("sid").value.trim();
+  const name = document.getElementById("sname").value.trim();
+  const resBox = document.getElementById("resultBox");
+  const err = (m) => { resBox.className = "result err"; resBox.textContent = m; };
+  if (!/^\d{4,5}$/.test(sid)) return err("학번을 정확히 입력하세요.");
+  if (name.length < 2) return err("이름을 입력하세요.");
+  const cards = PLANETS.map((p, i) => ({
+    행성: p,
+    반지름: document.getElementById("r"+i).value.trim(),
+    질량: document.getElementById("m"+i).value.trim(),
+    표면: document.getElementById("s"+i).value,
+    고리: document.getElementById("g"+i).value,
+    특징: document.getElementById("f"+i).value.trim(),
+    집단: groups[p] || ""
+  }));
+  const chk = checkGrouping();
+  const btn = document.getElementById("submitBtn");
+  btn.disabled = true; btn.textContent = "제출 중...";
+  try {
+    const r = await fetch(SCRIPT_URL, { method: "POST", headers: {"Content-Type":"text/plain;charset=utf-8"},
+      body: JSON.stringify({ action: "card", sid, name, criterion: document.getElementById("criterion").value.trim(),
+        match: chk.done ? (chk.match ? "일치" : "불일치") : "미완성", cards }) });
+    const d = await r.json();
+    if (d.ok) { resBox.className = "result ok"; resBox.innerHTML = "<b>제출 완료!</b> 탐구 결과가 기록되었습니다. 수정하고 싶으면 고친 뒤 다시 제출하세요."; }
+    else err(d.message || "제출 실패. 다시 시도하세요.");
+  } catch (e) { err("서버에 연결할 수 없습니다. 와이파이를 확인하세요."); }
+  btn.disabled = false; btn.textContent = "탐구 결과 제출하기";
+});
+</script>
+</body>
+</html>
