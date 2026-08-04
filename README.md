@@ -13,3 +13,9 @@
 
 ## 배포
 GitHub Pages (`.github/workflows/deploy-pages.yml`).
+
+## 태양계 온라인 활동지 (`/taeyang/`)
+
+Ⅶ. 태양계 1~5차시 온라인 활동지. 제출 수집·1회 제한·정답 공개는 Google Apps Script 연동(`taeyang/assets/config.js`에 웹 앱 URL 설정).
+- 학생용: `taeyang/index.html` · 정답: `taeyang/answers.html` (교사가 공개 시)
+- 교사용 정답 공개 관리: `taeyang/teacher.html` (주소 비공유)
