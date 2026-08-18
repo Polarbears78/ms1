@@ -1,0 +1,49 @@
+<!DOCTYPE html>
+<html lang="ko">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<title>5차시 · 첨단 과학기술의 활용과 미래 생활 · Ⅰ. 과학과 인류의 지속가능한 삶</title>
+<link rel="stylesheet" href="assets/style.css">
+</head>
+<body>
+
+<header class="top">
+  <div class="top-inner">
+    <a href="index.html">← 차시 목록</a>
+    <span class="unit">Ⅰ. 과학과 인류의 지속가능한 삶</span>
+  </div>
+</header>
+
+<main class="wrap">
+  <h1 id="qz-title"></h1>
+  <p class="pages" id="qz-pages"></p>
+
+  <div class="idrow">
+    <label>학번
+      <input type="text" id="sid" inputmode="numeric" autocomplete="off" placeholder="예: 1학년 1반 3번 → 10103">
+    </label>
+    <label>이름
+      <input type="text" id="sname" autocomplete="off" placeholder="이름">
+    </label>
+  </div>
+
+  <div id="questions"></div>
+
+  <button id="submitBtn" class="submit">제출하기 (1회만 가능)</button>
+  <div id="resultBox" class="result"></div>
+
+  <p class="note">제출은 학생당 1회만 가능합니다. 답을 모두 확인한 뒤 제출하세요.
+  서술형은 선생님이 확인하며, 정답과 해설은 수업 후 공개됩니다.</p>
+</main>
+
+<footer class="foot">
+  중학교 과학 1 · 2022 개정 교육과정 · 수업 보조 자료입니다.
+</footer>
+
+<script src="assets/config.js"></script>
+<script src="assets/questions.js"></script>
+<script>const QUIZ_ID = "sus5";</script>
+<script src="assets/quiz.js"></script>
+</body>
+</html>
