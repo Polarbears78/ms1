@@ -1,74 +1,27 @@
-# Ⅰ. 과학과 인류의 지속가능한 삶 · 온라인 활동지 (`jisok/`)
+# 과학 단원 평가 (ms1)
 
-중학교 과학 1 대단원 Ⅰ(2022 개정 교육과정)의 차시별 온라인 활동지입니다.
-`taeyang/` 폴더와 **같은 구조·같은 `quiz.js`·같은 Apps Script**를 사용합니다.
+중학교 과학 단원 평가용 정적 웹앱입니다.
 
-## 파일 구성
+- 화면 흐름: 단원 선택 → 평가 목록 → 한 문제씩 풀이(+정답 피드백) → 결과
+- 보기 탭 = 선택만, **확인** 버튼 = 채점 (터치 오선택 방지)
+- 단답형 정규화 채점, 서술형 모범답안 비교(자기평가)
 
-| 파일 | 용도 |
-|---|---|
-| `index.html` | 차시 목록 |
-| `sus1.html` ~ `sus8.html` | 1~7차시 + 대단원 마무리 활동지 |
-| `summary.html` | **차시별 요약 정리** (핵심 개념·오개념·출제 포인트) |
-| `assets/questions.js` | 문항 정의 (정답 없음 — 정답은 서버에만) |
-| `assets/quiz.js` | taeyang의 파일을 **수정 없이 그대로** 복사 |
-| `assets/config.js` | Apps Script URL — **taeyang의 것으로 덮어쓸 것** |
-| `assets/style.css` | 공통 스타일 (taeyang의 style.css로 덮어써도 동작) |
-| `정답표_교사용.md` | 스프레드시트 정답 시트 입력용 (저장소에 올리지 말 것) |
+## 구조
+- `index.html` / `styles.css` / `app.js` / `data.js`
+- `assets/figures/` : 문항 그림
+- `test/sim.js` : jsdom 흐름 검증 (`npm test`)
 
-`answers.html`, `teacher.html`은 이 폴더에 없습니다. taeyang 폴더에서 복사한 뒤,
-차시 목록이 `ws1~ws5`로 고정되어 있다면 `sus1~sus8`로 바꿔 주세요.
+## 배포
+GitHub Pages (`.github/workflows/deploy-pages.yml`).
 
-## 배포 순서
+## 태양계 온라인 활동지 (`/taeyang/`)
 
-```bash
-# ms1 저장소 루트에서
-cp -r <다운로드>/jisok ./
-cp taeyang/assets/config.js jisok/assets/config.js      # Apps Script 주소 재사용
-cp taeyang/answers.html taeyang/teacher.html jisok/      # 필요 시, 차시 ID 수정
-git add jisok && git commit -m "Add unit I worksheets" && git push
-```
+Ⅶ. 태양계 1~5차시 온라인 활동지. 제출 수집·1회 제한·정답 공개는 Google Apps Script 연동(`taeyang/assets/config.js`에 웹 앱 URL 설정).
+- 학생용: `taeyang/index.html` · 정답: `taeyang/answers.html` (교사가 공개 시)
+- 교사용 정답 공개 관리: `taeyang/teacher.html` (주소 비공유)
 
-접속 주소: `https://polarbear78.github.io/ms1/jisok/`
+## Ⅰ. 과학과 인류의 지속가능한 삶 온라인 활동지 (`/jisok/`)
 
-## 스프레드시트 준비 (배포 전 필수)
-
-1. **정답 시트**에 `정답표_교사용.md`의 내용을 `sus1`~`sus8` ID로 추가합니다.
-   선택형 저장값은 **0부터 시작하는 보기 번호**입니다.
-2. **공개 상태 시트**에 `sus1`~`sus8` 행을 추가하고 초기값을 `N`(비공개)으로 둡니다.
-3. **제출 시트**는 활동지 ID 열로 구분되므로 별도 작업이 없습니다.
-   시트를 ID별로 분리한 구조라면 `sus1`~`sus8` 시트를 추가로 만듭니다.
-4. `teacher.html`을 열어 목록에 8개 차시가 모두 보이면 정상입니다.
-
-> **ID 주의** — 태양계 활동지의 `ws1~ws5`와 겹치면 제출 기록과 정답이 섞입니다.
-> 이 단원은 반드시 `sus1`~`sus8`을 사용합니다.
-
-## 차시 대응
-
-| ID | 차시 | 교과서 | 문항 수 |
-|---|---|---|---|
-| `sus1` | 1차시 문제 인식과 가설 설정 | 10~13쪽 | 10 (서술 1) |
-| `sus2` | 2차시 탐구 설계~결론 도출 | 13~16쪽 | 10 (서술 1) |
-| `sus3` | 3차시 탐구 계획서 작성 | 17쪽 | 8 (전부 서술) |
-| `sus4` | 4차시 과학의 발전과 인류 문명 | 18~20쪽 | 10 (서술 1) |
-| `sus5` | 5차시 첨단 과학기술과 미래 생활 | 21~23쪽 | 9 (서술 2) |
-| `sus6` | 6차시 지속가능한 삶과 에너지·환경 문제 | 24~25쪽 | 10 (서술 1) |
-| `sus7` | 7차시 지속가능한 삶을 위한 실천 | 26~27쪽 | 10 (서술 3) |
-| `sus8` | 대단원 마무리 | 28~29쪽 | 15 (서술 1) |
-
-## 문항 추가·수정
-
-`assets/questions.js`만 고치면 됩니다. 세 가지 유형을 지원합니다.
-
-```js
-{type:"text",   q:"단답형 질문"}
-{type:"choice", q:"선택형 질문", choices:["①","②","③","④"]}
-{type:"long",   q:"[서술형] …"}   // 자동 채점 제외
-```
-
-문항을 **추가·삭제·순서 변경**하면 정답 시트의 번호도 함께 바꿔야 합니다.
-
----
-
-이 자료는 지도서를 근거로 작성한 수업 보조용 초안입니다.
-문항의 성취기준 부합도와 난이도는 교사의 최종 검토 후 사용하시기 바랍니다.
+Ⅰ단원 1~7차시 + 대단원 마무리 온라인 활동지. 제출 수집·1회 제한·정답 공개는 `taeyang/`과 **같은 Apps Script**를 사용하며, 활동지 ID는 충돌 방지를 위해 `sus1`~`sus8`을 씁니다.
+- 학생용: `jisok/index.html` · 요약: `jisok/summary.html` · 정답: `jisok/answers.html`
+- 교사용 정답 공개 관리: `jisok/teacher.html` (주소 비공유)
