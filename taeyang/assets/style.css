@@ -1,0 +1,32 @@
+:root{--main:#1a5fb4;--bg:#f7f9fc;--card:#fff;--line:#d8dee9;--ok:#2e7d32;--no:#c62828}
+*{box-sizing:border-box}
+body{font-family:'Noto Sans KR','Malgun Gothic',sans-serif;background:var(--bg);margin:0;color:#222;line-height:1.6}
+.wrap{max-width:760px;margin:0 auto;padding:16px}
+header{background:var(--main);color:#fff;padding:18px 16px;border-radius:0 0 12px 12px}
+header h1{margin:0;font-size:1.25rem}
+header p{margin:4px 0 0;font-size:.85rem;opacity:.9}
+.card{background:var(--card);border:1px solid var(--line);border-radius:10px;padding:16px;margin:14px 0}
+.card h2{font-size:1.02rem;margin:0 0 10px;color:var(--main)}
+label{display:block;font-weight:600;margin-bottom:4px;font-size:.92rem}
+input[type=text],textarea,select{width:100%;padding:9px;border:1px solid var(--line);border-radius:8px;font-size:.95rem;font-family:inherit}
+textarea{min-height:80px}
+.q{margin:16px 0;padding-bottom:14px;border-bottom:1px dashed var(--line)}
+.q:last-child{border-bottom:none}
+.qtext{font-weight:600;margin-bottom:8px}
+.choice{display:block;margin:5px 0;padding:8px 10px;border:1px solid var(--line);border-radius:8px;cursor:pointer;font-size:.93rem}
+.choice:has(input:checked){border-color:var(--main);background:#eaf1fb}
+.choice input{margin-right:8px}
+.row{display:flex;gap:10px}
+.row>div{flex:1}
+button{background:var(--main);color:#fff;border:none;border-radius:8px;padding:12px 18px;font-size:1rem;font-weight:700;cursor:pointer;width:100%}
+button:disabled{background:#9ab;cursor:not-allowed}
+.result{padding:14px;border-radius:8px;margin-top:14px;display:none}
+.result.ok{display:block;background:#e8f5e9;border:1px solid var(--ok)}
+.result.err{display:block;background:#ffebee;border:1px solid var(--no)}
+.mark-ok{color:var(--ok);font-weight:700}
+.mark-no{color:var(--no);font-weight:700}
+.list a{display:block;background:var(--card);border:1px solid var(--line);border-radius:10px;padding:14px 16px;margin:10px 0;text-decoration:none;color:#222;font-weight:600}
+.list a:hover{border-color:var(--main)}
+.list span{display:block;font-weight:400;font-size:.85rem;color:#667}
+.note{font-size:.83rem;color:#667}
+.badge{display:inline-block;background:#eaf1fb;color:var(--main);border-radius:6px;padding:1px 8px;font-size:.8rem;font-weight:700;margin-right:6px}

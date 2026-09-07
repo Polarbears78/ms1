@@ -1,0 +1,37 @@
+<!DOCTYPE html>
+<html lang="ko">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<meta name="robots" content="noindex">
+<title>태양계 활동지 2차시</title>
+<link rel="stylesheet" href="assets/style.css">
+</head>
+<body>
+<header><div class="wrap">
+  <h1 id="qz-title"></h1>
+  <p>Ⅶ. 태양계 · <span id="qz-pages"></span> · <a href="index.html" style="color:#cfe3ff">목록으로</a></p>
+</div></header>
+<div class="wrap">
+  <div class="card">
+    <h2>학생 정보</h2>
+    <div class="row">
+      <div><label for="sid">학번 (예: 1반 3번 → 10103)</label><input type="text" id="sid" inputmode="numeric" autocomplete="off"></div>
+      <div><label for="sname">이름</label><input type="text" id="sname" autocomplete="off"></div>
+    </div>
+    <p class="note">제출은 1회만 가능합니다. 학번을 정확히 입력하세요.</p>
+  </div>
+  <div class="card">
+    <h2>문항</h2>
+    <div id="questions"></div>
+  </div>
+  <button id="submitBtn">제출하기 (1회만 가능)</button>
+  <div id="resultBox" class="result"></div>
+  <p class="note" style="margin-bottom:40px">정답·해설은 수업 후 <a href="answers.html">정답 보기</a>에서 공개됩니다.</p>
+</div>
+<script src="assets/config.js"></script>
+<script src="assets/questions.js"></script>
+<script>const QUIZ_ID = "ws2";</script>
+<script src="assets/quiz.js"></script>
+</body>
+</html>

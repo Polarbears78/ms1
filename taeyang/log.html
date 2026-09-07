@@ -1,0 +1,126 @@
+<!DOCTYPE html>
+<html lang="ko">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<meta name="robots" content="noindex">
+<title>천체 관측 일지 · 태양계</title>
+<link rel="stylesheet" href="assets/style.css">
+<style>
+#sketch{background:#0b1533;border-radius:10px;touch-action:none;display:block;width:100%;max-width:420px;margin:8px auto}
+.sk-tools{display:flex;gap:8px;justify-content:center;margin-top:6px}
+.sk-tools button{width:auto;padding:8px 14px;font-size:.85rem}
+.chk{display:block;margin:6px 0;font-weight:500}
+</style>
+</head>
+<body>
+<header><div class="wrap">
+  <h1>천체 관측 일지</h1>
+  <p>Ⅶ. 태양계 5차시 · 교과서 238~239쪽 · <a href="index.html" style="color:#cfe3ff">목록으로</a></p>
+</div></header>
+<div class="wrap">
+  <div class="card">
+    <h2>관측 정보</h2>
+    <div class="row">
+      <div><label for="sid">학번</label><input type="text" id="sid" inputmode="numeric"></div>
+      <div><label for="sname">이름</label><input type="text" id="sname"></div>
+    </div>
+    <div class="row" style="margin-top:8px">
+      <div><label for="odate">관측 날짜</label><input type="date" id="odate"></div>
+      <div><label for="otime">관측 시각</label><input type="time" id="otime"></div>
+    </div>
+    <div class="row" style="margin-top:8px">
+      <div><label for="oplace">관측 장소</label><input type="text" id="oplace" placeholder="예: 학교 운동장"></div>
+      <div><label for="osky">하늘 상태</label><select id="osky"><option>맑음</option><option>구름 조금</option><option>구름 많음</option><option>흐림</option></select></div>
+    </div>
+    <div class="row" style="margin-top:8px">
+      <div><label for="otarget">관측 대상</label><select id="otarget"><option>달</option><option>목성</option><option>토성</option><option>금성</option><option>화성</option><option>별자리</option><option>기타</option></select></div>
+      <div><label for="otool">사용 도구</label><select id="otool"><option>천체 망원경</option><option>쌍안경</option><option>맨눈</option><option>천체 관측 앱</option></select></div>
+    </div>
+  </div>
+  <div class="card">
+    <h2>관측 스케치</h2>
+    <p class="note">관측한 천체의 모습을 손가락(또는 마우스)으로 그려 보세요.</p>
+    <canvas id="sketch" width="420" height="300"></canvas>
+    <div class="sk-tools">
+      <button type="button" id="penW" style="background:#fff;color:#222;border:1px solid var(--line)">흰색 펜</button>
+      <button type="button" id="penY" style="background:#f5d76e;color:#222">노란 펜</button>
+      <button type="button" id="clearBtn" style="background:#c62828">지우기</button>
+      <button type="button" id="saveBtn" style="background:#2e7d32">내 기기에 저장</button>
+    </div>
+  </div>
+  <div class="card">
+    <h2>관측 기록</h2>
+    <label for="ocontent">관측한 내용 (모양, 밝기, 표면의 특징, 주변 별과 비교 등)</label>
+    <textarea id="ocontent" placeholder="예: 달의 오른쪽 절반이 밝게 보였고, 경계 부근에서 크레이터가 뚜렷하게 보였다."></textarea>
+    <label for="ofeel" style="margin-top:8px">느낀 점·더 알아보고 싶은 점</label>
+    <textarea id="ofeel"></textarea>
+  </div>
+  <div class="card">
+    <h2>안전 확인</h2>
+    <label class="chk"><input type="checkbox" id="safe1"> 보호자(또는 선생님)와 함께, 안전한 장소에서 관측했습니다.</label>
+    <label class="chk"><input type="checkbox" id="safe2"> 태양을 맨눈이나 망원경으로 직접 보지 않았습니다.</label>
+  </div>
+  <button id="submitBtn">관측 일지 제출하기</button>
+  <div id="resultBox" class="result"></div>
+  <p class="note" style="margin-bottom:40px">관측할 때마다 새 일지를 제출할 수 있습니다.</p>
+</div>
+<script src="assets/config.js"></script>
+<script>
+const cv = document.getElementById("sketch"), ctx = cv.getContext("2d");
+ctx.fillStyle = "#0b1533"; ctx.fillRect(0, 0, cv.width, cv.height);
+ctx.lineWidth = 3; ctx.lineCap = "round"; ctx.strokeStyle = "#ffffff";
+let drawing = false, drawn = false;
+function pos(e) {
+  const r = cv.getBoundingClientRect();
+  const t = e.touches ? e.touches[0] : e;
+  return { x: (t.clientX - r.left) * cv.width / r.width, y: (t.clientY - r.top) * cv.height / r.height };
+}
+function start(e) { drawing = true; drawn = true; const p = pos(e); ctx.beginPath(); ctx.moveTo(p.x, p.y); e.preventDefault(); }
+function move(e) { if (!drawing) return; const p = pos(e); ctx.lineTo(p.x, p.y); ctx.stroke(); e.preventDefault(); }
+function end() { drawing = false; }
+cv.addEventListener("mousedown", start); cv.addEventListener("mousemove", move); window.addEventListener("mouseup", end);
+cv.addEventListener("touchstart", start, {passive:false}); cv.addEventListener("touchmove", move, {passive:false}); cv.addEventListener("touchend", end);
+document.getElementById("penW").onclick = () => ctx.strokeStyle = "#ffffff";
+document.getElementById("penY").onclick = () => ctx.strokeStyle = "#f5d76e";
+document.getElementById("clearBtn").onclick = () => { ctx.fillStyle = "#0b1533"; ctx.fillRect(0, 0, cv.width, cv.height); drawn = false; };
+document.getElementById("saveBtn").onclick = () => {
+  const a = document.createElement("a"); a.download = "관측스케치.png"; a.href = cv.toDataURL("image/png"); a.click();
+};
+
+document.getElementById("odate").value = new Date().toISOString().slice(0, 10);
+
+document.getElementById("submitBtn").addEventListener("click", async () => {
+  const g = id => document.getElementById(id);
+  const resBox = g("resultBox");
+  const err = m => { resBox.className = "result err"; resBox.textContent = m; };
+  const sid = g("sid").value.trim(), name = g("sname").value.trim();
+  if (!/^\d{4,5}$/.test(sid)) return err("학번을 정확히 입력하세요.");
+  if (name.length < 2) return err("이름을 입력하세요.");
+  if (!g("ocontent").value.trim()) return err("관측한 내용을 기록하세요.");
+  if (!g("safe1").checked || !g("safe2").checked) return err("안전 확인 항목 두 가지에 모두 체크해야 제출할 수 있습니다.");
+
+  // 스케치를 작은 이미지로 압축 (시트 저장용)
+  let sketch = "";
+  if (drawn) {
+    const small = document.createElement("canvas"); small.width = 280; small.height = 200;
+    small.getContext("2d").drawImage(cv, 0, 0, 280, 200);
+    sketch = small.toDataURL("image/jpeg", 0.5);
+    if (sketch.length > 45000) sketch = small.toDataURL("image/jpeg", 0.3);
+  }
+  const btn = g("submitBtn"); btn.disabled = true; btn.textContent = "제출 중...";
+  try {
+    const r = await fetch(SCRIPT_URL, { method: "POST", headers: {"Content-Type":"text/plain;charset=utf-8"},
+      body: JSON.stringify({ action: "log", sid, name,
+        date: g("odate").value, time: g("otime").value, place: g("oplace").value.trim(),
+        sky: g("osky").value, target: g("otarget").value, tool: g("otool").value,
+        content: g("ocontent").value.trim(), feel: g("ofeel").value.trim(), sketch }) });
+    const d = await r.json();
+    if (d.ok) { resBox.className = "result ok"; resBox.innerHTML = "<b>제출 완료!</b> 관측 일지가 기록되었습니다. 스케치는 [내 기기에 저장] 버튼으로 보관할 수 있어요."; }
+    else err(d.message || "제출 실패. 다시 시도하세요.");
+  } catch (e) { err("서버에 연결할 수 없습니다."); }
+  btn.disabled = false; btn.textContent = "관측 일지 제출하기";
+});
+</script>
+</body>
+</html>
