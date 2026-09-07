@@ -1,0 +1,73 @@
+<!DOCTYPE html>
+<html lang="ko">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<title>정답 보기 · Ⅱ-1. 생물의 구성</title>
+<link rel="stylesheet" href="assets/style.css">
+</head>
+<body>
+
+<header class="top">
+  <div class="top-inner">
+    <a href="index.html">← 차시 목록</a>
+    <span class="unit">Ⅱ-1. 생물의 구성</span>
+  </div>
+</header>
+
+<main class="wrap">
+  <h1>정답 보기</h1>
+  <p class="pages">선생님이 공개한 차시만 볼 수 있습니다</p>
+
+  <div class="q">
+    <div class="qtext">차시 선택</div>
+    <select id="wsSel" style="width:100%;font-family:inherit;font-size:15px;padding:9px 11px;border:1px solid #dfe4e0;border-radius:9px;background:#fdfdfb;color:#182422">
+      <option value="bio1">1차시 · 세포의 발견과 세포</option>
+      <option value="bio2">2차시 · 현미경으로 세포 관찰하기</option>
+      <option value="bio3">3차시 · 세포의 구조와 기능</option>
+      <option value="bio4">4차시 · 세포의 구조와 기능의 관계</option>
+      <option value="bio5">5차시 · 생물의 구성 단계</option>
+      <option value="bio6">중단원 마무리 · 종합 정리</option>
+    </select>
+  </div>
+
+  <button id="loadBtn" class="submit">정답 불러오기</button>
+  <div id="ansBox"></div>
+  <p class="note">서술형은 자동 채점 정답이 없습니다. 선생님의 피드백을 확인하세요.</p>
+</main>
+
+<footer class="foot">중학교 과학 1 · 2022 개정 교육과정 · 수업 보조 자료입니다.</footer>
+
+<script src="assets/config.js"></script>
+<script src="assets/questions.js"></script>
+<script>
+document.getElementById("loadBtn").addEventListener("click", async () => {
+  const ws = document.getElementById("wsSel").value;
+  const box = document.getElementById("ansBox");
+  box.innerHTML = '<div class="q"><p class="note" style="margin:0">불러오는 중...</p></div>';
+  try {
+    const r = await fetch(SCRIPT_URL + "?action=answers&ws=" + ws);
+    const d = await r.json();
+    if (!d.open) {
+      box.innerHTML = '<div class="q"><div class="qtext">아직 공개 전입니다</div>'
+        + '<p class="note" style="margin:0">이 차시의 정답은 수업이 끝난 뒤 선생님이 공개하면 볼 수 있습니다.</p></div>';
+      return;
+    }
+    const quiz = QUIZZES[ws];
+    let html = "";
+    d.answers.forEach((a, i) => {
+      const q = quiz.items[i];
+      html += '<div class="q"><div class="qtext"><span class="badge">' + (i + 1) + '번</span>'
+            + esc(q ? q.q : "") + '</div>'
+            + '<div><span class="mark-ok">정답</span> ' + esc(a.answer) + '</div>'
+            + (a.note ? '<p class="note">' + esc(a.note) + '</p>' : "") + '</div>';
+    });
+    box.innerHTML = html;
+  } catch (e) {
+    box.innerHTML = '<div class="q"><p class="note" style="margin:0">서버에 연결할 수 없습니다. 잠시 후 다시 시도하세요.</p></div>';
+  }
+});
+function esc(s){const d=document.createElement("div");d.textContent=(s==null?"":s);return d.innerHTML;}
+</script>
+</body>
+</html>
