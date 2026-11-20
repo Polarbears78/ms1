@@ -1,0 +1,59 @@
+<!DOCTYPE html>
+<html lang="ko">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<meta name="robots" content="noindex">
+<title>정답 보기 · 태양계 활동지</title>
+<link rel="stylesheet" href="assets/style.css">
+</head>
+<body>
+<header><div class="wrap">
+  <h1>정답 보기</h1>
+  <p>Ⅶ. 태양계 · <a href="index.html" style="color:#cfe3ff">목록으로</a></p>
+</div></header>
+<div class="wrap">
+  <div class="card">
+    <label for="wsSel">차시 선택</label>
+    <select id="wsSel">
+      <option value="ws1">1차시 · 태양계 구성원</option>
+      <option value="ws2">2차시 · 행성의 특징</option>
+      <option value="ws3">3차시 · 태양의 표면과 대기</option>
+      <option value="ws4">4차시 · 태양 활동이 지구에 미치는 영향</option>
+      <option value="ws5">5차시 · 천체 관측</option>
+    </select>
+    <div style="height:10px"></div>
+    <button id="loadBtn">정답 불러오기</button>
+  </div>
+  <div id="ansBox"></div>
+</div>
+<script src="assets/config.js"></script>
+<script src="assets/questions.js"></script>
+<script>
+document.getElementById("loadBtn").addEventListener("click", async () => {
+  const ws = document.getElementById("wsSel").value;
+  const box = document.getElementById("ansBox");
+  box.innerHTML = '<div class="card"><p>불러오는 중...</p></div>';
+  try {
+    const r = await fetch(SCRIPT_URL + "?action=answers&ws=" + ws);
+    const d = await r.json();
+    if (!d.open) {
+      box.innerHTML = '<div class="card"><h2>아직 공개 전입니다</h2><p class="note">이 차시의 정답은 수업이 끝난 뒤 선생님이 공개하면 볼 수 있습니다.</p></div>';
+      return;
+    }
+    const quiz = QUIZZES[ws];
+    let html = '<div class="card"><h2>' + quiz.title + ' 정답·해설</h2>';
+    d.answers.forEach((a, i) => {
+      html += '<div class="q"><div class="qtext">' + (i + 1) + '. ' + escq(quiz.items[i].q) + '</div>'
+            + '<div><span class="mark-ok">정답:</span> ' + escq(a.answer) + '</div>'
+            + (a.note ? '<div class="note">' + escq(a.note) + '</div>' : '') + '</div>';
+    });
+    box.innerHTML = html + '</div>';
+  } catch (e) {
+    box.innerHTML = '<div class="card"><p class="note">서버에 연결할 수 없습니다. 잠시 후 다시 시도하세요.</p></div>';
+  }
+  function escq(s){const d=document.createElement("div");d.textContent=s;return d.innerHTML;}
+});
+</script>
+</body>
+</html>

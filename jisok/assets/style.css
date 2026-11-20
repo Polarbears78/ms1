@@ -1,0 +1,225 @@
+/* Ⅰ. 과학과 인류의 지속가능한 삶 · 온라인 활동지
+   quiz.js가 사용하는 클래스: q / qtext / badge / choice / result(ok,err) / mark-ok / mark-no / note
+   taeyang 폴더의 style.css를 그대로 덮어써도 동작합니다. */
+
+:root {
+  --ink: #182422;
+  --ink-2: #4a5b57;
+  --ink-3: #7f8d89;
+  --paper: #fbfbf8;
+  --card: #fff;
+  --line: #dfe4e0;
+  --teal: #0d7f7f;
+  --teal-soft: #e2f2f0;
+  --amber: #f2b21c;
+  --amber-soft: #fdf3d9;
+  --sans: "Pretendard Variable", Pretendard, -apple-system, BlinkMacSystemFont,
+    "Malgun Gothic", "Apple SD Gothic Neo", sans-serif;
+}
+
+* { box-sizing: border-box; }
+
+body {
+  margin: 0;
+  background: var(--paper);
+  color: var(--ink);
+  font-family: var(--sans);
+  font-size: 16px;
+  line-height: 1.65;
+  word-break: keep-all;
+}
+
+.top {
+  background: rgba(251, 251, 248, 0.95);
+  border-bottom: 1px solid var(--line);
+  position: sticky;
+  top: 0;
+  z-index: 10;
+}
+.top-inner {
+  max-width: 760px;
+  margin: 0 auto;
+  padding: 10px 18px;
+  display: flex;
+  align-items: center;
+  gap: 12px;
+}
+.top a { color: var(--ink-2); text-decoration: none; font-size: 14px; font-weight: 600; }
+.top a:hover { color: var(--teal); }
+.top .unit { margin-left: auto; font-size: 13px; color: var(--ink-3); }
+
+.wrap { max-width: 760px; margin: 0 auto; padding: 26px 18px 90px; }
+
+h1 {
+  font-size: clamp(21px, 4vw, 26px);
+  letter-spacing: -0.02em;
+  margin: 0 0 6px;
+  border-left: 5px solid var(--amber);
+  padding-left: 14px;
+}
+.pages { margin: 0 0 22px 19px; font-size: 14px; color: var(--ink-3); }
+
+/* 학번·이름 */
+.idrow {
+  display: grid;
+  grid-template-columns: 1fr 1fr;
+  gap: 12px;
+  background: var(--card);
+  border: 1px solid var(--line);
+  border-radius: 12px;
+  padding: 14px;
+  margin-bottom: 22px;
+}
+.idrow label { display: block; font-size: 12px; font-weight: 700; color: var(--ink-3); }
+.idrow input { margin-top: 5px; }
+@media (max-width: 520px) { .idrow { grid-template-columns: 1fr; } }
+
+input[type="text"], input:not([type]), textarea {
+  width: 100%;
+  font-family: inherit;
+  font-size: 15px;
+  line-height: 1.6;
+  color: var(--ink);
+  background: #fdfdfb;
+  border: 1px solid var(--line);
+  border-radius: 9px;
+  padding: 9px 11px;
+}
+textarea { min-height: 96px; resize: vertical; }
+input:focus, textarea:focus {
+  outline: none;
+  border-color: var(--teal);
+  box-shadow: 0 0 0 3px var(--teal-soft);
+}
+::placeholder { color: #b3bcb8; }
+
+/* 문항 */
+.q {
+  background: var(--card);
+  border: 1px solid var(--line);
+  border-radius: 12px;
+  padding: 16px 16px 18px;
+  margin-bottom: 12px;
+}
+.qtext { font-size: 15.5px; font-weight: 600; margin-bottom: 10px; }
+.badge {
+  display: inline-block;
+  font-size: 12px;
+  font-weight: 700;
+  color: #0a6363;
+  background: var(--teal-soft);
+  border-radius: 999px;
+  padding: 2px 10px;
+  margin-right: 8px;
+  vertical-align: 2px;
+}
+.q:has(textarea) .badge { background: var(--amber-soft); color: #8a6208; }
+
+label.choice {
+  display: flex;
+  align-items: flex-start;
+  gap: 9px;
+  font-size: 15px;
+  color: var(--ink-2);
+  background: #fdfdfb;
+  border: 1px solid #eef1ed;
+  border-radius: 9px;
+  padding: 9px 11px;
+  margin-top: 7px;
+  cursor: pointer;
+}
+label.choice input { margin: 4px 0 0; width: 17px; height: 17px; flex: none; accent-color: var(--teal); }
+label.choice:has(input:checked) { background: var(--teal-soft); border-color: #9fcfcb; }
+
+/* 제출 */
+.submit {
+  width: 100%;
+  margin-top: 18px;
+  font-family: inherit;
+  font-size: 16px;
+  font-weight: 700;
+  color: #fff;
+  background: var(--teal);
+  border: none;
+  border-radius: 12px;
+  padding: 14px;
+  cursor: pointer;
+}
+.submit:hover { background: #0a6767; }
+.submit:disabled { background: #a8b5b1; cursor: default; }
+.submit:focus-visible { outline: 3px solid var(--amber); outline-offset: 2px; }
+
+.result { margin-top: 16px; border-radius: 12px; padding: 16px; font-size: 15px; }
+.result:empty { display: none; }
+.result.ok { background: var(--teal-soft); border: 1px solid #9fcfcb; }
+.result.err { background: #fdeceb; border: 1px solid #f0b7b4; color: #8d2b26; }
+.mark-ok { color: #0a6363; font-weight: 700; }
+.mark-no { color: #c0392b; font-weight: 700; }
+.note { font-size: 13px; color: var(--ink-3); margin: 10px 0 0; }
+
+/* 목록 페이지 */
+.cards { display: grid; grid-template-columns: repeat(auto-fill, minmax(230px, 1fr)); gap: 12px; }
+a.card {
+  display: block;
+  text-decoration: none;
+  color: inherit;
+  background: var(--card);
+  border: 1px solid var(--line);
+  border-radius: 12px;
+  padding: 15px 16px 17px;
+  transition: transform .15s, border-color .15s;
+}
+a.card:hover { transform: translateY(-2px); border-color: var(--teal); }
+a.card .ch { font-size: 12px; font-weight: 700; color: var(--teal); }
+a.card h3 { margin: 4px 0 5px; font-size: 16px; letter-spacing: -0.01em; }
+a.card p { margin: 0; font-size: 13px; color: var(--ink-2); }
+
+/* 요약 페이지 */
+details.sum {
+  background: var(--card);
+  border: 1px solid var(--line);
+  border-radius: 12px;
+  margin-bottom: 10px;
+  overflow: hidden;
+}
+details.sum > summary {
+  cursor: pointer;
+  padding: 13px 16px;
+  font-weight: 700;
+  font-size: 15px;
+  list-style: none;
+  display: flex;
+  gap: 10px;
+  align-items: center;
+}
+details.sum > summary::-webkit-details-marker { display: none; }
+details.sum > summary::after { content: "＋"; margin-left: auto; color: var(--ink-3); font-weight: 400; }
+details.sum[open] > summary::after { content: "－"; }
+details.sum[open] > summary { border-bottom: 1px solid #eef1ed; }
+.sum-body { padding: 14px 16px 18px; font-size: 14.5px; }
+.sum-body dl { margin: 0; display: grid; grid-template-columns: 84px 1fr; gap: 8px 12px; }
+.sum-body dt { font-weight: 700; color: var(--teal); font-size: 13px; padding-top: 2px; }
+.sum-body dd { margin: 0; color: var(--ink-2); }
+.sum-body ul { margin: 4px 0 0; padding-left: 17px; }
+@media (max-width: 520px) {
+  .sum-body dl { grid-template-columns: 1fr; gap: 2px; }
+  .sum-body dd { margin-bottom: 8px; }
+}
+.tip {
+  background: var(--amber-soft);
+  border-left: 3px solid var(--amber);
+  border-radius: 0 8px 8px 0;
+  padding: 10px 14px;
+  font-size: 14px;
+  color: #5d4708;
+  margin: 0 0 18px;
+}
+
+.foot { max-width: 760px; margin: 0 auto; padding: 0 18px 36px; font-size: 12.5px; color: var(--ink-3); line-height: 1.7; }
+
+@media print {
+  .top, .submit, .noprint { display: none !important; }
+  .q { break-inside: avoid; }
+  details.sum { break-inside: avoid; }
+  details.sum > summary::after { content: ""; }
+}

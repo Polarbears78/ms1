@@ -1,0 +1,88 @@
+<!DOCTYPE html>
+<html lang="ko">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<meta name="robots" content="noindex">
+<title>교사용 · 정답 공개 관리 (Ⅱ-1)</title>
+<link rel="stylesheet" href="assets/style.css">
+</head>
+<body>
+
+<header class="top">
+  <div class="top-inner">
+    <a href="index.html">← 차시 목록</a>
+    <span class="unit">교사용</span>
+  </div>
+</header>
+
+<main class="wrap">
+  <h1>정답 공개 관리</h1>
+  <p class="pages">Ⅱ-1. 생물의 구성</p>
+
+  <p class="tip">이 페이지 주소와 교사 키는 학생에게 공유하지 마세요. 키는 현재 탭에서만 기억됩니다.</p>
+
+  <div class="q">
+    <div class="qtext">교사 키</div>
+    <input type="password" id="tkey" placeholder="Apps Script의 TEACHER_KEY 값">
+  </div>
+
+  <div id="stBox"><div class="q"><p class="note" style="margin:0">불러오는 중...</p></div></div>
+  <div id="msgBox" class="result"></div>
+</main>
+
+<footer class="foot">중학교 과학 1 · 교사용 관리 페이지</footer>
+
+<script src="assets/config.js"></script>
+<script>
+const WS_NAMES = {
+  bio1:"1차시 · 세포의 발견과 세포",
+  bio2:"2차시 · 현미경으로 세포 관찰하기",
+  bio3:"3차시 · 세포의 구조와 기능",
+  bio4:"4차시 · 세포의 구조와 기능의 관계",
+  bio5:"5차시 · 생물의 구성 단계",
+  bio6:"중단원 마무리 · 종합 정리"
+};
+const keyEl = document.getElementById("tkey");
+keyEl.value = sessionStorage.getItem("tkey_bio") || "";
+keyEl.addEventListener("input", () => sessionStorage.setItem("tkey_bio", keyEl.value));
+
+async function loadStatus() {
+  const box = document.getElementById("stBox");
+  try {
+    const r = await fetch(SCRIPT_URL + "?action=status");
+    const d = await r.json();
+    if (!d.ok) throw 0;
+    box.innerHTML = Object.keys(WS_NAMES).map(ws => {
+      const open = !!d.status[ws];
+      return '<div class="q" style="display:flex;align-items:center;gap:12px">'
+        + '<div style="flex:1"><div class="qtext" style="margin:0">' + WS_NAMES[ws] + '</div>'
+        + '<span class="' + (open ? "mark-ok" : "mark-no") + '">' + (open ? "공개 중" : "비공개") + '</span></div>'
+        + '<button class="submit" style="width:auto;margin:0;padding:9px 14px;font-size:14px" '
+        + 'onclick="toggle(\'' + ws + '\',\'' + (open ? "N" : "Y") + '\')">'
+        + (open ? "비공개로" : "공개") + '</button></div>';
+    }).join("");
+  } catch (e) {
+    box.innerHTML = '<div class="q"><p class="note" style="margin:0">상태를 불러올 수 없습니다. assets/config.js의 서버 주소를 확인하세요.<br>'
+      + '(공개상태 시트에 bio1~bio6 행이 없으면 목록이 비어 보일 수 있습니다.)</p></div>';
+  }
+}
+
+async function toggle(ws, open) {
+  const msg = document.getElementById("msgBox");
+  const key = keyEl.value.trim();
+  if (!key) { msg.className = "result err"; msg.textContent = "교사 키를 먼저 입력하세요."; return; }
+  if (open === "Y" && !confirm(WS_NAMES[ws] + " 정답을 지금 공개할까요? 학생들이 즉시 볼 수 있게 됩니다.")) return;
+  try {
+    const r = await fetch(SCRIPT_URL, { method: "POST", headers: {"Content-Type": "text/plain;charset=utf-8"},
+      body: JSON.stringify({ action: "setOpen", key, ws, open }) });
+    const d = await r.json();
+    if (d.ok) { msg.className = "result ok"; msg.textContent = WS_NAMES[ws] + (d.open ? " 정답을 공개했습니다." : " 정답을 비공개로 바꿨습니다."); }
+    else { msg.className = "result err"; msg.textContent = d.message || "실패했습니다."; }
+  } catch (e) { msg.className = "result err"; msg.textContent = "서버에 연결할 수 없습니다."; }
+  loadStatus();
+}
+loadStatus();
+</script>
+</body>
+</html>

@@ -1,0 +1,154 @@
+<!DOCTYPE html>
+<html lang="ko">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<title>내가 쓴 것 보기 · Ⅱ-1. 생물의 구성</title>
+<link rel="stylesheet" href="assets/style.css">
+</head>
+<body>
+
+<header class="top">
+  <div class="top-inner">
+    <a href="index.html">← 차시 목록</a>
+    <span class="unit">Ⅱ-1. 생물의 구성</span>
+  </div>
+</header>
+
+<main class="wrap">
+  <h1>내가 쓴 것 보기</h1>
+  <p class="pages">이 기기에서 작성한 내용을 다시 볼 수 있습니다</p>
+
+  <p class="tip">이 페이지는 <b>지금 사용 중인 기기의 브라우저</b>에 남아 있는 내용을 보여 줍니다.
+  다른 기기나 시크릿 창에서는 보이지 않습니다. 관찰 기록과 서술형 답안은 <b>같은 기기</b>에서만 다시 볼 수 있으니,
+  필요하면 아래 [글로 복사하기]로 옮겨 두세요.</p>
+
+  <div class="q">
+    <div class="qtext">차시 선택</div>
+    <select id="wsSel" style="width:100%;font-family:inherit;font-size:15px;padding:9px 11px;border:1px solid #dfe4e0;border-radius:9px;background:#fdfdfb;color:#182422"></select>
+  </div>
+
+  <div id="out"></div>
+
+  <div class="noprint" id="tools" style="display:none;margin-top:16px;display:flex;gap:8px;flex-wrap:wrap">
+    <button class="submit" id="copyBtn" style="width:auto;padding:11px 18px;font-size:14px;margin:0">글로 복사하기</button>
+    <button class="submit" id="printBtn" style="width:auto;padding:11px 18px;font-size:14px;margin:0;background:#fff;color:#182422;border:1px solid #dfe4e0">인쇄 / PDF</button>
+  </div>
+</main>
+
+<footer class="foot">
+  중학교 과학 1 · 2022 개정 교육과정 · 저장 위치는 학생 기기이며 서버로 전송되지 않습니다.
+</footer>
+
+<script src="assets/questions.js"></script>
+<script>
+(function () {
+  const sel = document.getElementById("wsSel");
+  const out = document.getElementById("out");
+  const tools = document.getElementById("tools");
+  let current = null;
+
+  Object.keys(QUIZZES).forEach(ws => {
+    const o = document.createElement("option");
+    o.value = ws;
+    o.textContent = QUIZZES[ws].title;
+    sel.appendChild(o);
+  });
+  sel.value = Object.keys(QUIZZES)[0];
+
+  function grab(ws) {
+    let sent = null, draft = null;
+    try { sent = JSON.parse(localStorage.getItem("ms1:sent:" + ws) || "null"); } catch (e) {}
+    try { draft = JSON.parse(localStorage.getItem("ms1:draft:" + ws) || "null"); } catch (e) {}
+    return sent || draft;
+  }
+
+  function render() {
+    const ws = sel.value;
+    const data = grab(ws);
+    const quiz = QUIZZES[ws];
+    current = null;
+
+    if (!data) {
+      out.innerHTML = '<div class="q"><div class="qtext">저장된 내용이 없습니다</div>'
+        + '<p class="note" style="margin:0">이 기기에서 <b>' + esc(quiz.title)
+        + '</b> 활동지를 작성한 기록이 없습니다. 다른 기기에서 작성했거나, 브라우저 기록을 지운 경우입니다.</p></div>';
+      tools.style.display = "none";
+      return;
+    }
+    current = { ws, data, quiz };
+
+    const when = new Date(data.at).toLocaleString("ko-KR");
+    let html = '<div class="q"><div class="qtext">'
+      + '<span class="badge">' + (data.submitted ? "제출 완료" : "작성 중") + '</span>'
+      + esc(quiz.title) + '</div>'
+      + '<p class="note" style="margin:0">' + esc(data.sid || "학번 미입력") + " · "
+      + esc(data.name || "이름 미입력") + " · " + esc(when)
+      + (data.submitted ? " 제출" : " 마지막 저장") + '</p></div>';
+
+    quiz.items.forEach((it, i) => {
+      const v = data.answers[i];
+      let ans;
+      if (it.type === "choice") {
+        ans = (v === null || v === undefined)
+          ? '<span class="mark-no">답하지 않음</span>'
+          : esc(String(v + 1) + "번 · " + it.choices[v]);
+      } else {
+        ans = (v && String(v).trim())
+          ? esc(String(v)).replace(/\n/g, "<br>")
+          : '<span class="mark-no">답하지 않음</span>';
+      }
+      html += '<div class="q"><div class="qtext"><span class="badge">'
+        + (it.type === "long" ? "서술형" : (i + 1) + "번") + '</span>' + esc(it.q) + '</div>'
+        + '<div style="background:#fdfdfb;border:1px solid #eef1ed;border-radius:9px;padding:10px 12px;font-size:15px;line-height:1.7">'
+        + ans + '</div></div>';
+    });
+
+    out.innerHTML = html;
+    tools.style.display = "flex";
+  }
+
+  function asText() {
+    if (!current) return "";
+    const { data, quiz } = current;
+    const lines = ["[" + quiz.title + "]",
+      (data.sid || "") + " " + (data.name || ""),
+      new Date(data.at).toLocaleString("ko-KR") + (data.submitted ? " 제출" : " 저장"), ""];
+    quiz.items.forEach((it, i) => {
+      const v = data.answers[i];
+      lines.push((i + 1) + ". " + it.q);
+      if (it.type === "choice") {
+        lines.push("→ " + (v === null || v === undefined ? "(답하지 않음)" : (v + 1) + "번 " + it.choices[v]));
+      } else {
+        lines.push("→ " + ((v && String(v).trim()) ? String(v).trim() : "(답하지 않음)"));
+      }
+      lines.push("");
+    });
+    return lines.join("\n");
+  }
+
+  document.getElementById("copyBtn").addEventListener("click", () => {
+    const text = asText();
+    const done = () => alert("복사했습니다. 필요한 곳에 붙여넣으세요.");
+    if (navigator.clipboard && window.isSecureContext) {
+      navigator.clipboard.writeText(text).then(done, () => fallback(text, done));
+    } else fallback(text, done);
+  });
+
+  function fallback(text, done) {
+    const ta = document.createElement("textarea");
+    ta.value = text; ta.style.position = "fixed"; ta.style.opacity = "0";
+    document.body.appendChild(ta); ta.select();
+    try { document.execCommand("copy"); done(); }
+    catch (e) { alert("복사가 안 됩니다. 화면의 내용을 직접 선택해 복사하세요."); }
+    document.body.removeChild(ta);
+  }
+
+  document.getElementById("printBtn").addEventListener("click", () => window.print());
+  sel.addEventListener("change", render);
+  function esc(s) { const d = document.createElement("div"); d.textContent = (s == null ? "" : s); return d.innerHTML; }
+  render();
+})();
+</script>
+</body>
+</html>
